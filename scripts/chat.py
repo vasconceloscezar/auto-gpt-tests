@@ -76,7 +76,7 @@ def chat_with_ai(
             send_token_limit = token_limit - 1000
 
             relevant_memory = permanent_memory.get_relevant(
-                str(full_message_history[-5:]), 10
+                str(full_message_history[-9:]), 10
             )
 
             if cfg.debug_mode:
@@ -162,6 +162,6 @@ def chat_with_ai(
 
             return assistant_reply
         except openai.error.RateLimitError:
-            # TODO: WHen we switch to langchain, this is built in
+            # TODO: When we switch to langchain, this is built in
             print("Error: ", "API Rate Limit Reached. Waiting 10 seconds...")
             time.sleep(10)
