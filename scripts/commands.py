@@ -6,7 +6,13 @@ import agent_manager as agents
 import speak
 from config import Config
 import ai_functions as ai
-from file_operations import read_file, write_to_file, append_to_file, delete_file, search_files
+from file_operations import (
+    read_file,
+    write_to_file,
+    append_to_file,
+    delete_file,
+    search_files,
+)
 from execute_code import execute_python_file, execute_shell
 from json_parser import fix_and_parse_json
 from image_gen import generate_image
@@ -31,7 +37,7 @@ def get_command(response):
         response_json = fix_and_parse_json(response)
 
         if "command" not in response_json:
-            return "Error:" , "Missing 'command' object in JSON"
+            return "Error:", "Missing 'command' object in JSON"
 
         command = response_json["command"]
 
@@ -57,26 +63,27 @@ def execute_command(command_name, arguments):
 
     try:
         if command_name == "google":
-
             # Check if the Google API key is set and use the official search method
             # If the API key is not set or has only whitespaces, use the unofficial search method
-            if cfg.google_api_key and (cfg.google_api_key.strip() if cfg.google_api_key else None):
+            if cfg.google_api_key and (
+                cfg.google_api_key.strip() if cfg.google_api_key else None
+            ):
                 return google_official_search(arguments["input"])
             else:
                 return google_search(arguments["input"])
         elif command_name == "memory_add":
             return memory.add(arguments["string"])
-        elif command_name == "start_agent":
-            return start_agent(
-                arguments["name"],
-                arguments["task"],
-                arguments["prompt"])
-        elif command_name == "message_agent":
-            return message_agent(arguments["key"], arguments["message"])
-        elif command_name == "list_agents":
-            return list_agents()
-        elif command_name == "delete_agent":
-            return delete_agent(arguments["key"])
+        # elif command_name == "start_agent":
+        #     return start_agent(
+        #         arguments["name"],
+        #         arguments["task"],
+        #         arguments["prompt"])
+        # elif command_name == "message_agent":
+        #     return message_agent(arguments["key"], arguments["message"])
+        # elif command_name == "list_agents":
+        #     return list_agents()
+        # elif command_name == "delete_agent":
+        # return delete_agent(arguments["key"])
         elif command_name == "get_text_summary":
             return get_text_summary(arguments["url"], arguments["question"])
         elif command_name == "get_hyperlinks":
@@ -124,8 +131,9 @@ def execute_command(command_name, arguments):
 
 def get_datetime():
     """Return the current date and time"""
-    return "Current date and time: " + \
-        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return "Current date and time: " + datetime.datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
 
 def google_search(query, num_results=8):
@@ -152,7 +160,11 @@ def google_official_search(query, num_results=8):
         service = build("customsearch", "v1", developerKey=api_key)
 
         # Send the search query and retrieve the results
-        result = service.cse().list(q=query, cx=custom_search_engine_id, num=num_results).execute()
+        result = (
+            service.cse()
+            .list(q=query, cx=custom_search_engine_id, num=num_results)
+            .execute()
+        )
 
         # Extract the search result items from the response
         search_results = result.get("items", [])
@@ -165,7 +177,11 @@ def google_official_search(query, num_results=8):
         error_details = json.loads(e.content.decode())
 
         # Check if the error is related to an invalid or missing API key
-        if error_details.get("error", {}).get("code") == 403 and "invalid API key" in error_details.get("error", {}).get("message", ""):
+        if error_details.get("error", {}).get(
+            "code"
+        ) == 403 and "invalid API key" in error_details.get("error", {}).get(
+            "message", ""
+        ):
             return "Error: The provided Google API key is invalid or missing."
         else:
             return f"Error: {e}"
